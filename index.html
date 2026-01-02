@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>$10,000 Digital Challenge</title>
+
+<style>
+:root {
+  --bg: #0f172a;
+  --card: #111827;
+  --box: #1f2933;
+  --active: #22c55e;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.container {
+  max-width: 480px;
+  margin: auto;
+  padding: 1rem;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 0.25rem;
+}
+
+p {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.box {
+  background: var(--box);
+  border-radius: 12px;
+  padding: 0.75rem 0;
+  text-align: center;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  transition: 0.2s;
+}
+
+.box.active {
+  background: var(--active);
+  color: #022c22;
+}
+
+.summary {
+  margin-top: 1.5rem;
+  background: var(--card);
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+}
+
+button {
+  margin-top: 1rem;
+  width: 100%;
+  padding: 0.6rem;
+  background: #374151;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+  <h1>$10,000 Challenge</h1>
+  <p>Tap a box after each digital transfer</p>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="summary">
+    <div id="progress">$0 / $10,000</div>
+    <button onclick="resetChallenge()">Reset</button>
+  </div>
+</div>
+
+<script>
+const amounts = [
+  ...Array(20).fill(5),
+  ...Array(20).fill(10),
+  ...Array(20).fill(25),
+  ...Array(20).fill(50),
+  ...Array(20).fill(75),
+  ...Array(20).fill(100),
+  ...Array(10).fill(150),
+  ...Array(10).fill(200),
+];
+
+const grid = document.getElementById("grid");
+const progress = document.getElementById("progress");
+let state = JSON.parse(localStorage.getItem("challenge")) || [];
+
+amounts.forEach((amt, i) => {
+  const div = document.createElement("div");
+  div.className = "box";
+  div.textContent = `$${amt}`;
+  if (state[i]) div.classList.add("active");
+
+  div.onclick = () => {
+    div.classList.toggle("active");
+    state[i] = div.classList.contains("active");
+    localStorage.setItem("challenge", JSON.stringify(state));
+    updateProgress();
+  };
+
+  grid.appendChild(div);
+});
+
+function updateProgress() {
+  let total = 0;
+  state.forEach((on, i) => {
+    if (on) total += amounts[i];
+  });
+  progress.textContent = `$${total.toLocaleString()} / $10,000`;
+}
+
+function resetChallenge() {
+  if (!confirm("Reset all progress?")) return;
+  localStorage.removeItem("challenge");
+  location.reload();
+}
+
+updateProgress();
+</script>
+</body>
+</html>
